@@ -78,14 +78,17 @@ def inference():
     index2label = get_index2label(YAML_PATH)
 
     start = time.time()
+    # 输入字典: {input_name: input,...}
+    # 输出字典: {output_name: output,...}
     detections = model({"images": input_tensor.cuda()})
-    # print(detections[0].shape)                                    # [1, 25200, 85]
-    detections = np.squeeze(detections['output0'].cpu().numpy())    # [25200, 85]
+    print(detections)
+    print(detections['output0'].shape)                  # [1, 25200, 85]
+    detection = detections['output0'].cpu().numpy()[0]  # [25200, 85]
 
     # Step 8. Postprocessing including NMS
-    img = post(detections, delta_w ,delta_h, img, CONFIDENCE_THRESHOLD, SCORE_THRESHOLD, NMS_THRESHOLD, index2label)
+    img = post(detection, delta_w ,delta_h, img, CONFIDENCE_THRESHOLD, SCORE_THRESHOLD, NMS_THRESHOLD, index2label)
     end = time.time()
-    print((end - start) * 1000)
+    print('time:', (end - start) * 1000)
 
     cv2.imwrite("./engine_det.png", img)
 
